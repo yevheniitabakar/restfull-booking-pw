@@ -1,26 +1,25 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../src/fixtures/test";
 
-test("GET /ping should return 201", async ({ request }) => {
-  const response = await request.get("/ping");
+test("GET /ping should return 201", async ({ http }) => {
+  const response = await http.get<string>("/ping");
 
-  expect(response.status()).toBe(201);
-  const contentType = response.headers()["content-type"];
+  expect(response.status).toBe(201);
+  const contentType = response.headers["content-type"];
   expect(contentType).toBeTruthy();
   if (contentType) {
     expect(contentType).toContain("text/plain");
   }
 });
 
-test("GET /booking should return 200 and JSON", async ({ request }) => {
-  const response = await request.get("/booking");
+test("GET /booking should return 200 and JSON", async ({ http }) => {
+  const response = await http.get<unknown>("/booking");
 
-  expect(response.status()).toBe(200);
-  const contentType = response.headers()["content-type"];
+  expect(response.status).toBe(200);
+  const contentType = response.headers["content-type"];
   expect(contentType).toBeTruthy();
   if (contentType) {
     expect(contentType).toContain("application/json");
   }
 
-  const body = await response.json();
-  expect(Array.isArray(body)).toBe(true);
+  expect(Array.isArray(response.body)).toBe(true);
 });

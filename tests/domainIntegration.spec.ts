@@ -1,16 +1,11 @@
-import { test, expect } from "@playwright/test";
-import { HttpClient } from "../src/api/http/httpClient";
-import { BookingClient } from "../src/api/clients/bookingClient";
+import { test, expect } from "../src/fixtures/test";
 import { BookingRequestBuilder } from "../src/domain/builders/bookingRequestBuilder";
 import type { CreateBookingResponse } from "../src/domain/models/booking";
 
-test("Create booking using BookingClient", async ({ request }) => {
-  const http = new HttpClient(request);
-  const bookingClient = new BookingClient(http);
-
+test("Create booking using BookingClient", async ({ clients }) => {
   const bookingRequest = BookingRequestBuilder.default().withRandomNames().build();
 
-  const response = await bookingClient.createBooking(bookingRequest);
+  const response = await clients.booking.createBooking(bookingRequest);
   expect(response.ok).toBe(true);
   expect(response.status).toBe(200);
 

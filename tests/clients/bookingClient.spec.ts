@@ -1,21 +1,11 @@
-import { test, expect } from "@playwright/test";
-import { HttpClient } from "../../src/api/http/httpClient";
-import { AuthClient } from "../../src/api/clients/authClient";
-import { BookingClient } from "../../src/api/clients/bookingClient";
+import { test, expect } from "../../src/fixtures/test";
 import { BookingRequestBuilder } from "../../src/domain/builders/bookingRequestBuilder";
 import type { CreateBookingResponse } from "../../src/domain/models/booking";
 
-const DEFAULT_USER = "admin";
-const DEFAULT_PASS = "password123";
-
-test("createBooking then getBooking should match payload", async ({ request }) => {
-  const http = new HttpClient(request);
-  const bookingClient = new BookingClient(http);
-  const authClient = new AuthClient(http);
-
+test("createBooking then getBooking should match payload", async ({ clients, authToken }) => {
   const bookingRequest = BookingRequestBuilder.default().withRandomNames().build();
 
-  const createResponse = await bookingClient.createBooking(bookingRequest);
+  const createResponse = await clients.booking.createBooking(bookingRequest);
   expect(createResponse.ok).toBe(true);
   expect(createResponse.status).toBe(200);
 
@@ -25,7 +15,7 @@ test("createBooking then getBooking should match payload", async ({ request }) =
 
   const bookingId = created.bookingid;
 
-  const getResponse = await bookingClient.getBooking(bookingId);
+  const getResponse = await clients.booking.getBooking(bookingId);
   expect(getResponse.ok).toBe(true);
   expect(getResponse.status).toBe(200);
 
@@ -44,22 +34,11 @@ test("createBooking then getBooking should match payload", async ({ request }) =
   expect(booking.bookingdates.checkout).toBe(bookingRequest.bookingdates.checkout);
   expect(booking.additionalneeds).toBe(bookingRequest.additionalneeds);
 
-  const tokenResponse = await authClient.createToken({
-    username: process.env.BOOKER_USER || DEFAULT_USER,
-    password: process.env.BOOKER_PASS || DEFAULT_PASS,
-  });
-
-  const token = (tokenResponse.body as { token?: string }).token;
-  if (token) {
-    await bookingClient.deleteBooking(bookingId, token);
-  }
+  await clients.booking.deleteBooking(bookingId, authToken);
 });
 
-test("getBookingIds returns array", async ({ request }) => {
-  const http = new HttpClient(request);
-  const bookingClient = new BookingClient(http);
-
-  const response = await bookingClient.getBookingIds();
+test("getBookingIds returns array", async ({ clients }) => {
+  const response = await clients.booking.getBookingIds();
   expect(response.ok).toBe(true);
   expect(response.status).toBe(200);
   expect(Array.isArray(response.body)).toBe(true);

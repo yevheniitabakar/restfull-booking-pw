@@ -1,15 +1,10 @@
-import { test, expect } from "@playwright/test";
-import { HttpClient } from "../../src/api/http/httpClient";
-import { AuthClient } from "../../src/api/clients/authClient";
+import { test, expect } from "../../src/fixtures/test";
 
 const DEFAULT_USER = "admin";
 const DEFAULT_PASS = "password123";
 
-test("createToken returns token", async ({ request }) => {
-  const http = new HttpClient(request);
-  const authClient = new AuthClient(http);
-
-  const response = await authClient.createToken({
+test("createToken returns token", async ({ clients }) => {
+  const response = await clients.auth.createToken({
     username: process.env.BOOKER_USER || DEFAULT_USER,
     password: process.env.BOOKER_PASS || DEFAULT_PASS,
   });
