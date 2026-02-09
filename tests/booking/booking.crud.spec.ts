@@ -16,12 +16,18 @@ test.describe("Booking CRUD", () => {
   test("Create booking -> Get booking matches @smoke", async ({ clients, authToken }) => {
     const payload = BookingRequestBuilder.default().withRandomNames().build();
 
-    await withBooking(clients, authToken, payload, async (bookingId) => {
-      const getResponse = await clients.booking.getBooking(bookingId);
-      expectResponseOk(getResponse, "get booking");
+    await test.step("Create booking", async () => {
+      await withBooking(clients, authToken, payload, async (bookingId) => {
+        await test.step("Get booking", async () => {
+          const getResponse = await clients.booking.getBooking(bookingId);
+          expectResponseOk(getResponse, "get booking");
 
-      const booking = getResponse.body as typeof payload;
-      expectBookingMatchesRequest(booking, payload);
+          await test.step("Verify booking matches request", async () => {
+            const booking = getResponse.body as typeof payload;
+            expectBookingMatchesRequest(booking, payload);
+          });
+        });
+      });
     });
   });
 
@@ -37,18 +43,24 @@ test.describe("Booking CRUD", () => {
       .build();
 
     await withBooking(clients, authToken, original, async (bookingId) => {
-      const updateResponse = await clients.booking.updateBooking(
-        bookingId,
-        updated,
-        authToken,
-      );
-      expectResponseOk(updateResponse, "update booking");
+      await test.step("Update booking", async () => {
+        const updateResponse = await clients.booking.updateBooking(
+          bookingId,
+          updated,
+          authToken,
+        );
+        expectResponseOk(updateResponse, "update booking");
+      });
 
-      const getResponse = await clients.booking.getBooking(bookingId);
-      expectResponseOk(getResponse, "get booking after update");
+      await test.step("Get booking after update", async () => {
+        const getResponse = await clients.booking.getBooking(bookingId);
+        expectResponseOk(getResponse, "get booking after update");
 
-      const booking = getResponse.body as typeof updated;
-      expectBookingMatchesRequest(booking, updated);
+        await test.step("Verify booking matches update", async () => {
+          const booking = getResponse.body as typeof updated;
+          expectBookingMatchesRequest(booking, updated);
+        });
+      });
     });
   });
 
@@ -60,20 +72,26 @@ test.describe("Booking CRUD", () => {
     const patch = { firstname: "Patch", totalprice: 777 };
 
     await withBooking(clients, authToken, original, async (bookingId) => {
-      const patchResponse = await clients.booking.partialUpdateBooking(
-        bookingId,
-        patch,
-        authToken,
-      );
-      expectResponseOk(patchResponse, "patch booking");
+      await test.step("Patch booking", async () => {
+        const patchResponse = await clients.booking.partialUpdateBooking(
+          bookingId,
+          patch,
+          authToken,
+        );
+        expectResponseOk(patchResponse, "patch booking");
+      });
 
-      const getResponse = await clients.booking.getBooking(bookingId);
-      expectResponseOk(getResponse, "get booking after patch");
+      await test.step("Get booking after patch", async () => {
+        const getResponse = await clients.booking.getBooking(bookingId);
+        expectResponseOk(getResponse, "get booking after patch");
 
-      const booking = getResponse.body as typeof original;
-      expectBookingContainsPatch(booking, patch);
-      expect(booking.lastname).toBe(original.lastname);
-      expect(booking.bookingdates.checkin).toBe(original.bookingdates.checkin);
+        await test.step("Verify patched and unchanged fields", async () => {
+          const booking = getResponse.body as typeof original;
+          expectBookingContainsPatch(booking, patch);
+          expect(booking.lastname).toBe(original.lastname);
+          expect(booking.bookingdates.checkin).toBe(original.bookingdates.checkin);
+        });
+      });
     });
   });
 
@@ -85,14 +103,18 @@ test.describe("Booking CRUD", () => {
     const { bookingId } = await createBookingOrThrow(clients, payload);
 
     try {
-      const deleteResponse = await clients.booking.deleteBooking(
-        bookingId,
-        authToken,
-      );
-      expectResponseOk(deleteResponse, "delete booking");
+      await test.step("Delete booking", async () => {
+        const deleteResponse = await clients.booking.deleteBooking(
+          bookingId,
+          authToken,
+        );
+        expectResponseOk(deleteResponse, "delete booking");
+      });
 
-      const getResponse = await clients.booking.getBooking(bookingId);
-      expect(getResponse.ok).toBe(false);
+      await test.step("Verify booking is no longer accessible", async () => {
+        const getResponse = await clients.booking.getBooking(bookingId);
+        expect(getResponse.ok).toBe(false);
+      });
     } finally {
       await deleteBookingQuietly(clients, authToken, bookingId);
     }

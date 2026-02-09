@@ -1,5 +1,5 @@
 import { test as base, expect, request as playwrightRequest } from "@playwright/test";
-import { HttpClient } from "../api/http/httpClient";
+import { HttpClient, type AttachmentSink } from "../api/http/httpClient";
 import { AuthClient } from "../api/clients/authClient";
 import { BookingClient } from "../api/clients/bookingClient";
 
@@ -27,8 +27,19 @@ const DEFAULT_BASE_URL = "https://restful-booker.herokuapp.com";
 const MAX_BODY_SNIPPET = 2048;
 
 export const test = base.extend<TestFixtures, WorkerFixtures>({
-  http: async ({ request }, use) => {
-    await use(new HttpClient(request));
+  http: async ({ request }, use, testInfo) => {
+    const attach: AttachmentSink = async (attachment) => {
+      const body =
+        typeof attachment.body === "string"
+          ? Buffer.from(attachment.body, "utf-8")
+          : attachment.body;
+      await testInfo.attach(attachment.name, {
+        body,
+        contentType: attachment.contentType,
+      });
+    };
+
+    await use(new HttpClient(request, { attach }));
   },
 
   clients: async ({ http }, use) => {

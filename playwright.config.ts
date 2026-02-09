@@ -11,7 +11,18 @@ export default defineConfig({
     timeout: 5_000,
   },
   retries: 1,
-  reporter: [["html", { open: "never" }], ["list"]],
+  reporter: [
+    ["html", { open: "never" }],
+    ["list"],
+    [
+      "allure-playwright",
+      {
+        resultsDir: "allure-results",
+        detail: true,
+        suiteTitle: true,
+      },
+    ],
+  ],
   projects: [
     {
       name: "smoke",

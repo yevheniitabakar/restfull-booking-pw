@@ -37,6 +37,23 @@ Tagging:
 - Use `@negative` for error handling tests.
 - Everything else runs in regression by default.
 
+## Allure Reporting
+
+Generate and view Allure reports:
+
+```bash
+npm run allure:clean
+npm run test:regression
+npm run allure:generate
+npm run allure:open
+```
+
+Or use the combined shortcut:
+
+```bash
+npm run test:regression:allure
+```
+
 ## Scope
 
 Stage 0+ focuses on building a layered, maintainable API test framework with clear separation of concerns.
