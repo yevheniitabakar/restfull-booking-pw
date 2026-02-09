@@ -5,6 +5,11 @@ import {
   deleteBookingQuietly,
   withBooking,
 } from "../../src/test-helpers/bookingLifecycle";
+import {
+  expectBookingContainsPatch,
+  expectBookingMatchesRequest,
+  expectResponseOk,
+} from "../../src/assertions/bookingAssertions";
 
 
 test.describe("Booking CRUD", () => {
@@ -13,19 +18,10 @@ test.describe("Booking CRUD", () => {
 
     await withBooking(clients, authToken, payload, async (bookingId) => {
       const getResponse = await clients.booking.getBooking(bookingId);
-      expect(getResponse.ok).toBe(true);
-      expect(getResponse.status).toBe(200);
+      expectResponseOk(getResponse, "get booking");
 
       const booking = getResponse.body as typeof payload;
-      expect(booking.firstname).toBe(payload.firstname);
-      expect(booking.lastname).toBe(payload.lastname);
-      expect(booking.totalprice).toBe(payload.totalprice);
-      expect(booking.depositpaid).toBe(payload.depositpaid);
-      expect(booking.bookingdates.checkin).toBe(payload.bookingdates.checkin);
-      expect(booking.bookingdates.checkout).toBe(payload.bookingdates.checkout);
-      if (payload.additionalneeds !== undefined) {
-        expect(booking.additionalneeds).toBe(payload.additionalneeds);
-      }
+      expectBookingMatchesRequest(booking, payload);
     });
   });
 
@@ -46,21 +42,13 @@ test.describe("Booking CRUD", () => {
         updated,
         authToken,
       );
-      expect(updateResponse.ok).toBe(true);
-      expect(updateResponse.status).toBe(200);
+      expectResponseOk(updateResponse, "update booking");
 
       const getResponse = await clients.booking.getBooking(bookingId);
-      expect(getResponse.ok).toBe(true);
-      expect(getResponse.status).toBe(200);
+      expectResponseOk(getResponse, "get booking after update");
 
       const booking = getResponse.body as typeof updated;
-      expect(booking.firstname).toBe(updated.firstname);
-      expect(booking.lastname).toBe(updated.lastname);
-      expect(booking.totalprice).toBe(updated.totalprice);
-      expect(booking.depositpaid).toBe(updated.depositpaid);
-      expect(booking.bookingdates.checkin).toBe(updated.bookingdates.checkin);
-      expect(booking.bookingdates.checkout).toBe(updated.bookingdates.checkout);
-      expect(booking.additionalneeds).toBe(updated.additionalneeds);
+      expectBookingMatchesRequest(booking, updated);
     });
   });
 
@@ -77,20 +65,15 @@ test.describe("Booking CRUD", () => {
         patch,
         authToken,
       );
-      expect(patchResponse.ok).toBe(true);
-      expect(patchResponse.status).toBe(200);
+      expectResponseOk(patchResponse, "patch booking");
 
       const getResponse = await clients.booking.getBooking(bookingId);
-      expect(getResponse.ok).toBe(true);
-      expect(getResponse.status).toBe(200);
+      expectResponseOk(getResponse, "get booking after patch");
 
       const booking = getResponse.body as typeof original;
-      expect(booking.firstname).toBe(patch.firstname);
-      expect(booking.totalprice).toBe(patch.totalprice);
+      expectBookingContainsPatch(booking, patch);
       expect(booking.lastname).toBe(original.lastname);
-      expect(booking.depositpaid).toBe(original.depositpaid);
       expect(booking.bookingdates.checkin).toBe(original.bookingdates.checkin);
-      expect(booking.bookingdates.checkout).toBe(original.bookingdates.checkout);
     });
   });
 
@@ -106,7 +89,7 @@ test.describe("Booking CRUD", () => {
         bookingId,
         authToken,
       );
-      expect(deleteResponse.ok).toBe(true);
+      expectResponseOk(deleteResponse, "delete booking");
 
       const getResponse = await clients.booking.getBooking(bookingId);
       expect(getResponse.ok).toBe(false);
