@@ -1,6 +1,6 @@
-# Playwright API FW (Stage 0)
+# Playwright API FW
 
-Stage 0 is a minimal, runnable Playwright Test + TypeScript setup for Restful-Booker API tests. No custom clients or fixtures yet.
+Playwright Test + TypeScript setup for Restful-Booker API tests with transport, clients, fixtures, builders, and suites.
 
 ## Setup
 
@@ -22,6 +22,21 @@ cp .env.example .env
 npm test
 ```
 
+Default `npm test` runs the regression project (excludes `@smoke` and `@negative`).
+
+## Running Test Suites
+
+```bash
+npm run test:smoke
+npm run test:negative
+npm run test:regression
+```
+
+Tagging:
+- Use `@smoke` for minimal health checks.
+- Use `@negative` for error handling tests.
+- Everything else runs in regression by default.
+
 ## Scope
 
-Stage 0 focuses on bootstrapping only. Future stages will add architecture layers (clients, fixtures, data factories, etc.).
+Stage 0+ focuses on building a layered, maintainable API test framework with clear separation of concerns.

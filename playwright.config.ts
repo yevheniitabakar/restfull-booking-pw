@@ -12,6 +12,24 @@ export default defineConfig({
   },
   retries: 1,
   reporter: [["html", { open: "never" }], ["list"]],
+  projects: [
+    {
+      name: "smoke",
+      grep: /@smoke/,
+      retries: 1,
+    },
+    {
+      name: "negative",
+      grep: /@negative/,
+      retries: 1,
+      workers: 1,
+    },
+    {
+      name: "regression",
+      grepInvert: /@smoke|@negative/,
+      retries: 1,
+    },
+  ],
   use: {
     baseURL:
       process.env.BOOKER_BASE_URL || "https://restful-booker.herokuapp.com",

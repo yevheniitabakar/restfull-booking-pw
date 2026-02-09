@@ -3,7 +3,7 @@ import { expectResponseNotOk } from "../../src/assertions/responseAssertions";
 
 const DEFAULT_USER = "admin";
 
-test.describe("Auth Negative", () => {
+test.describe("Auth Negative @negative", () => {
   test("Auth with invalid credentials should fail @negative", async ({ clients }) => {
     const response = await clients.auth.createToken({
       username: DEFAULT_USER,

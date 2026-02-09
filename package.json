@@ -4,10 +4,13 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test --project=regression",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:report": "playwright show-report",
+    "test:smoke": "playwright test --project=smoke",
+    "test:negative": "playwright test --project=negative",
+    "test:regression": "playwright test --project=regression",
     "lint": "eslint .",
     "format": "prettier -w ."
   },

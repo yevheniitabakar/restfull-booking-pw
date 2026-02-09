@@ -4,7 +4,7 @@ import { withBooking } from "../../src/test-helpers/bookingLifecycle";
 import { expectBookingMatchesRequest } from "../../src/assertions/bookingAssertions";
 import { expectResponseNotOk } from "../../src/assertions/responseAssertions";
 
-test.describe("Booking Negative", () => {
+test.describe("Booking Negative @negative", () => {
   test("Get non-existent booking id should fail @negative", async ({ clients }) => {
     const response = await clients.booking.getBooking(99999999);
     expectResponseNotOk(response, "get non-existent booking");
